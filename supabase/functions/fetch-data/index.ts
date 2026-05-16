@@ -37,8 +37,20 @@ serve(async (req) => {
         if (geminiApiKey && news_url) {
             console.log(`Analyzing news from: ${news_url}`);
 
+            let selectedModel = "gemini-1.5-flash";
+            try {
+                const modelListResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
+                const modelListData = await modelListResponse.json();
+                if (modelListData.models) {
+                    const flashModel = modelListData.models.find((m: any) => m.name.includes('flash') && m.supportedMethods.includes('generateContent'));
+                    if (flashModel) selectedModel = flashModel.name.split('models/')[1];
+                }
+            } catch (e) {
+                console.warn("Dynamic model fetch failed, using default.");
+            }
+
             const articleContent = `(Placeholder: Content from ${news_url})`; // Replace with actual fetch
-            const geminiApiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"; // Placeholder
+            const geminiApiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent`; // Placeholder
 
             // Simulate Gemini API call and sentiment analysis
             const sentimentResult = {

@@ -35,17 +35,49 @@ const GeminiAIEngine: React.FC = () => {
       setError('Lỗi: Thiếu khóa API Gemini. Vui lòng kiểm tra biến môi trường NEXT_PUBLIC_GEMINI_API_KEY.');
       return;
     }
-    try {
-      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      modelRef.current = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp', systemInstruction });
-      chatRef.current = modelRef.current.startChat({
-        history: [],
-        generationConfig: { maxOutputTokens: 2000 },
-      });
-    } catch (e: unknown) {
-      console.error("Error initializing Gemini AI: ", e);
-      setError(`Lỗi khởi tạo AI: ${(e as Error).message}. Vui lòng kiểm tra khóa API và kết nối mạng.`);
-    }
+
+    const initializeAI = async () => {
+      try {
+        // Dynamic Model Fetcher via direct fetch to Google API
+        let selectedModel = 'gemini-1.5-flash';
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`);
+          const data = await response.json();
+          console.log("Available models via fetch:", data.models);
+          
+          if (data.models && Array.isArray(data.models)) {
+            const availableModels = data.models.filter((m: any) => 
+              m.supportedMethods.includes('generateContent')
+            );
+            
+            // Tìm model Flash tốt nhất
+            const flashModel = availableModels.find((m: any) => m.name.includes('flash') && !m.name.includes('8b'));
+            const fallbackFlash = availableModels.find((m: any) => m.name.includes('flash'));
+            
+            if (flashModel) {
+              selectedModel = flashModel.name.split('models/')[1];
+            } else if (fallbackFlash) {
+              selectedModel = fallbackFlash.name.split('models/')[1];
+            }
+          }
+          console.log("Dynamically selected model:", selectedModel);
+        } catch (listError) {
+          console.warn("Could not list models, falling back to default:", listError);
+        }
+
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        modelRef.current = genAI.getGenerativeModel({ model: selectedModel, systemInstruction });
+        chatRef.current = modelRef.current.startChat({
+          history: [],
+          generationConfig: { maxOutputTokens: 2000 },
+        });
+      } catch (e: unknown) {
+        console.error("Error initializing Gemini AI: ", e);
+        setError(`Lỗi khởi tạo AI: ${(e as Error).message}. Vui lòng kiểm tra khóa API và kết nối mạng.`);
+      }
+    };
+
+    initializeAI();
   }, []);
 
   useEffect(() => {
