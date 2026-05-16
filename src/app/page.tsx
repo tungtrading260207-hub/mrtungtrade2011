@@ -1,6 +1,7 @@
 "use client";
 
 import { useDashboard } from "@/components/DashboardLayoutProvider";
+import CryptoAlgorithmic from "@/components/dashboard/CryptoAlgorithmic"; // Import the new component
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -10,7 +11,7 @@ export default function Home() {
       case "Tổng quan thị trường":
         return <div>Tab Tổng quan thị trường đang phát triển...</div>;
       case "Dấu vết On-chain (Crypto Algorithmic)":
-        return <div>Tab Dấu vết On-chain (Crypto Algorithmic) đang phát triển...</div>;
+        return <CryptoAlgorithmic />;
       case "Tiêu chí Vĩ mô (VN-Stock Intensive)":
         return <div>Tab Tiêu chí Vĩ mô (VN-Stock Intensive) đang phát triển...</div>;
       case "Bộ lọc Kèo Vàng":

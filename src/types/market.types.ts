@@ -64,5 +64,16 @@ export interface VNStock3TData {
   marketTrend: 'up' | 'down' | 'neutral'; /** Xu hướng thị trường chung. */
   liquidityScore: number; /** Điểm thanh khoản (1-10), đánh giá khả năng khớp lệnh. */
   institutionalNetBuySell: number; /** Giá trị mua ròng/bán ròng của khối tổ chức. */
-  foreignNetBuySell: number; /** Giá trị mua ròng/bán ròng của khối ngoại. */
+  foreignNetBuySell: number; /** Giá trị mua ròng/bán ròng của khối khối ngoại. */
+}
+
+/**
+ * @interface Altcoin
+ * @description Thông tin chi tiết về một Altcoin cho module Crypto Algorithmic.
+ */
+export interface Altcoin extends BasicMarketInfo, OnChainNetflow, TechnicalSMCIndicators, TungChecklistStatus {
+  marketCap: number; /** Vốn hóa thị trường. */
+  circulatingSupplyPercentage: number; /** Phần trăm cung lưu hành so với tổng cung. */
+  narrative: string[]; /** Các nhóm narrative mà coin thuộc về (ví dụ: AI, RWA, DePIN, L2). */
+  topWhaleFluctuation: number; /** Biến động số dư ví của các Top Holders (cá voi) trong 24h qua (%). */
 }
