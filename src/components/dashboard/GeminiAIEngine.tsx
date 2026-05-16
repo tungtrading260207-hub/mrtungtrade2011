@@ -41,9 +41,9 @@ const GeminiAIEngine: React.FC = () => {
         history: [],
         generationConfig: { maxOutputTokens: 2000 },
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Error initializing Gemini AI: ", e);
-      setError(`Lỗi khởi tạo AI: ${e.message}. Vui lòng kiểm tra khóa API và kết nối mạng.`);
+      setError(`Lỗi khởi tạo AI: ${(e as Error).message}. Vui lòng kiểm tra khóa API và kết nối mạng.`);
     }
   }, []);
 
@@ -104,10 +104,10 @@ const GeminiAIEngine: React.FC = () => {
         }
       });
 
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Error sending message to Gemini AI: ", e);
-      setError(`Lỗi phản hồi từ AI: ${e.message}. Vui lòng thử lại sau.`);
-      setChatHistory((prev) => [...prev, { role: 'model', content: `Lỗi: ${e.message}` }]);
+      setError(`Lỗi phản hồi từ AI: ${(e as Error).message}. Vui lòng thử lại sau.`);
+      setChatHistory((prev) => [...prev, { role: 'model', content: `Lỗi: ${(e as Error).message}` }]);
     } finally {
       setIsLoading(false);
     }

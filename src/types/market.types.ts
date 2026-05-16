@@ -76,6 +76,7 @@ export interface Altcoin extends BasicMarketInfo, OnChainNetflow, TechnicalSMCIn
   circulatingSupplyPercentage: number; /** Phần trăm cung lưu hành so với tổng cung. */
   narrative: string[]; /** Các nhóm narrative mà coin thuộc về (ví dụ: AI, RWA, DePIN, L2). */
   topWhaleFluctuation: number; /** Biến động số dư ví của các Top Holders (cá voi) trong 24h qua (%). */
+  cvdImpulse: number; /** Xung lực tích lũy/phân phối dựa trên Cumulative Volume Delta. */
 }
 
 export interface PendingOrder {
@@ -118,4 +119,21 @@ export interface TradeHistory {
   realizedPnL: number;
   realizedPnLPercentage: number;
   fees: number;
+}
+
+export interface VNStockLTP {
+  ticker: string; /** Mã cổ phiếu. */
+  lastTradedPrice: number; /** Giá khớp lệnh cuối cùng (LTP). */
+  change: number; /** Thay đổi giá so với giá tham chiếu. */
+  changePercentage: number; /** Phần trăm thay đổi giá. */
+}
+
+export interface VNStockDividend {
+  ticker: string; /** Mã cổ phiếu. */
+  exDate: Date; /** Ngày giao dịch không hưởng quyền. */
+  recordDate: Date; /** Ngày đăng ký cuối cùng. */
+  cashDividendRatio?: number; /** Tỷ lệ cổ tức tiền mặt (%). */
+  stockDividendRatio?: number; /** Tỷ lệ cổ tức cổ phiếu (%). */
+  bonusShareRatio?: number; /** Tỷ lệ cổ phiếu thưởng (%). */
+  dividendType: 'cash' | 'stock' | 'bonus' | 'mixed'; /** Loại cổ tức. */
 }

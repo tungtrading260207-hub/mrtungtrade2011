@@ -47,7 +47,7 @@ export async function getMarketSentiment(): Promise<MarketSentiment> {
       fearGreedIndex: Math.round(generateRandomData(50, 20)),
     };
     return mockData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Lỗi khi lấy dữ liệu tâm lý thị trường:', error);
     throw new Error('Không thể lấy dữ liệu tâm lý thị trường.');
   }
@@ -76,7 +76,7 @@ export async function getOnChainNetflow(ticker: string): Promise<OnChainNetflow>
       whaleHoldingsRatio: parseFloat(generateRandomData(0.6, 0.05).toFixed(4)), // 0.55 - 0.65
     };
     return mockData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Lỗi khi lấy dữ liệu on-chain netflow cho ${ticker}:`, error);
     throw new Error(`Không thể lấy dữ liệu on-chain netflow cho ${ticker}.`);
   }
@@ -106,7 +106,7 @@ export async function getTungChecklist(ticker: string): Promise<TungChecklistSta
       exhaustionModeSignal,
     };
     return mockData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Lỗi khi lấy dữ liệu checklist cho ${ticker}:`, error);
     throw new Error(`Không thể lấy dữ liệu checklist cho ${ticker}.`);
   }
@@ -164,6 +164,7 @@ export async function getSuperPumpHunterAltcoins(): Promise<Altcoin[]> {
         circulatingSupplyPercentage: circulatingSupplyPercentage,
         narrative: selectedNarratives,
         topWhaleFluctuation: topWhaleFluctuation,
+        cvdImpulse: parseFloat(generateRandomData(0, 100).toFixed(2)),
         fearGreedIndex: Math.round(generateRandomData(50, 20)),
         mfi: Math.round(generateRandomData(50, 30)),
         rsi: Math.round(generateRandomData(50, 20)),
@@ -188,7 +189,7 @@ export async function getSuperPumpHunterAltcoins(): Promise<Altcoin[]> {
       }
     }
     return altcoins;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Lỗi khi lấy dữ liệu Altcoin cho Super-Pump Hunter:', error);
     throw new Error('Không thể lấy dữ liệu Altcoin cho Super-Pump Hunter.');
   }
@@ -216,7 +217,7 @@ export async function getVNStock3TData(ticker: string): Promise<VNStock3TData> {
       foreignNetBuySell: parseFloat(generateRandomData(50000000000, 30000000000).toFixed(2)),
     };
     return mockData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Lỗi khi lấy dữ liệu 3T cho ${ticker}:`, error);
     throw new Error(`Không thể lấy dữ liệu 3T cho ${ticker}.`);
   }
