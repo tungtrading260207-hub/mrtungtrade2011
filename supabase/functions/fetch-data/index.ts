@@ -37,12 +37,12 @@ serve(async (req) => {
         if (geminiApiKey && news_url) {
             console.log(`Analyzing news from: ${news_url}`);
 
-            let selectedModel = "gemini-1.5-flash";
+            let selectedModel = "gemini-3-flash-preview";
             try {
                 const modelListResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
                 const modelListData = await modelListResponse.json();
                 if (modelListData.models) {
-                    const flashModel = modelListData.models.find((m: any) => m.name.includes('flash') && m.supportedMethods.includes('generateContent'));
+                    const flashModel = modelListData.models.find((m: any) => m.name.includes('gemini-3') && m.supportedMethods.includes('generateContent'));
                     if (flashModel) selectedModel = flashModel.name.split('models/')[1];
                 }
             } catch (e) {

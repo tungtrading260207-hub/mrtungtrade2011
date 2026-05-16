@@ -25,15 +25,14 @@ const GeminiAIEngine: React.FC = () => {
   const [userInput, setUserInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-2.0-flash-exp');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3-flash-preview');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<GenerativeModel | null>(null);
   const chatRef = useRef<ChatSession | null>(null);
 
   const availableModels = [
-    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Exp' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
-    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview' },
+    { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite' },
   ];
 
   useEffect(() => {
