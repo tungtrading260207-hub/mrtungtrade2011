@@ -37,7 +37,7 @@ const GeminiAIEngine: React.FC = () => {
     }
     try {
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      modelRef.current = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction });
+      modelRef.current = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest', systemInstruction });
       chatRef.current = modelRef.current.startChat({
         history: [],
         generationConfig: { maxOutputTokens: 2000 },
