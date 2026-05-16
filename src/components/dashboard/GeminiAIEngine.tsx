@@ -25,60 +25,42 @@ const GeminiAIEngine: React.FC = () => {
   const [userInput, setUserInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-1.5-flash');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<GenerativeModel | null>(null);
   const chatRef = useRef<ChatSession | null>(null);
 
+  const availableModels = [
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
+    { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash-8B' },
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Exp' },
+    { id: 'gemini-pro', name: 'Gemini 1.0 Pro' },
+  ];
+
   useEffect(() => {
-    console.log("GEMINI_API_KEY from env:", GEMINI_API_KEY ? "Found (HIDDEN)" : "NOT FOUND");
     if (!GEMINI_API_KEY) {
       setError('Lỗi: Thiếu khóa API Gemini. Vui lòng kiểm tra biến môi trường NEXT_PUBLIC_GEMINI_API_KEY.');
       return;
     }
 
-    const initializeAI = async () => {
+    const initializeAI = () => {
       try {
-        // Dynamic Model Fetcher via direct fetch to Google API
-        let selectedModel = 'gemini-1.5-flash';
-        try {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`);
-          const data = await response.json();
-          console.log("Available models via fetch:", data.models);
-          
-          if (data.models && Array.isArray(data.models)) {
-            const availableModels = data.models.filter((m: any) => 
-              m.supportedMethods.includes('generateContent')
-            );
-            
-            // Tìm model Flash tốt nhất
-            const flashModel = availableModels.find((m: any) => m.name.includes('flash') && !m.name.includes('8b'));
-            const fallbackFlash = availableModels.find((m: any) => m.name.includes('flash'));
-            
-            if (flashModel) {
-              selectedModel = flashModel.name.split('models/')[1];
-            } else if (fallbackFlash) {
-              selectedModel = fallbackFlash.name.split('models/')[1];
-            }
-          }
-          console.log("Dynamically selected model:", selectedModel);
-        } catch (listError) {
-          console.warn("Could not list models, falling back to default:", listError);
-        }
-
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         modelRef.current = genAI.getGenerativeModel({ model: selectedModel, systemInstruction });
         chatRef.current = modelRef.current.startChat({
           history: [],
           generationConfig: { maxOutputTokens: 2000 },
         });
+        setError(null);
       } catch (e: unknown) {
         console.error("Error initializing Gemini AI: ", e);
-        setError(`Lỗi khởi tạo AI: ${(e as Error).message}. Vui lòng kiểm tra khóa API và kết nối mạng.`);
+        setError(`Lỗi khởi tạo mô hình ${selectedModel}: ${(e as Error).message}`);
       }
     };
 
     initializeAI();
-  }, []);
+  }, [selectedModel]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -214,7 +196,22 @@ const GeminiAIEngine: React.FC = () => {
         <h2 className="text-xl font-bold mb-4 text-emerald-400">
           Trợ lý AI Định lượng <span className="text-gray-400 text-sm">(AI Quant Assistant)</span>
         </h2>
-        <div ref={chatContainerRef} className="flex-grow overflow-auto border border-gray-600 rounded-md p-3 mb-4 dark:bg-gray-900" style={{ maxHeight: 'calc(100% - 120px)' }}>
+        
+        {/* Model Selector */}
+        <div className="mb-4 flex items-center space-x-2 text-sm">
+          <span className="text-gray-400">Model:</span>
+          <select 
+            value={selectedModel} 
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="bg-gray-700 text-emerald-400 border border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          >
+            {availableModels.map(m => (
+              <option key={m.id} value={m.id}>{m.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div ref={chatContainerRef} className="flex-grow overflow-auto border border-gray-600 rounded-md p-3 mb-4 dark:bg-gray-900" style={{ maxHeight: 'calc(100% - 160px)' }}>
           {chatHistory.map((message, index) => (
             <div key={index} className={`mb-2 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
               <div
