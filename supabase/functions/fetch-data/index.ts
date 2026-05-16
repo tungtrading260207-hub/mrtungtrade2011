@@ -38,7 +38,7 @@ serve(async (req) => {
             console.log(`Analyzing news from: ${news_url}`);
 
             const articleContent = `(Placeholder: Content from ${news_url})`; // Replace with actual fetch
-            const geminiApiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash:generateContent"; // Placeholder
+            const geminiApiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent"; // Placeholder
 
             // Simulate Gemini API call and sentiment analysis
             const sentimentResult = {
