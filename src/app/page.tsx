@@ -5,6 +5,7 @@ import CryptoAlgorithmic from "@/components/dashboard/CryptoAlgorithmic"; // Imp
 import VNStockIntensive from "@/components/dashboard/VNStockIntensive";
 import PineScriptHub from "@/components/dashboard/PineScriptHub";
 import PaperTradingEngine from "@/components/dashboard/PaperTradingEngine";
+import GeminiAIEngine from "@/components/dashboard/GeminiAIEngine";
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -23,7 +24,7 @@ export default function Home() {
       case "Tiêu chí Vĩ mô (VN-Stock Intensive)":
         return <VNStockIntensive />;
       case "Bộ lọc Kèo Vàng":
-        return <div>Tab Bộ lọc Kèo Vàng đang phát triển...</div>;
+        return <GeminiAIEngine />;
       case "Kho Pine Script Hub":
         return <PineScriptHub />;
       case "Cấu hình API Hệ thống":
