@@ -3,6 +3,7 @@
 import { useDashboard } from "@/components/DashboardLayoutProvider";
 import CryptoAlgorithmic from "@/components/dashboard/CryptoAlgorithmic"; // Import the new component
 import VNStockIntensive from "@/components/dashboard/VNStockIntensive";
+import PineScriptHub from "@/components/dashboard/PineScriptHub";
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -18,7 +19,7 @@ export default function Home() {
       case "Bộ lọc Kèo Vàng":
         return <div>Tab Bộ lọc Kèo Vàng đang phát triển...</div>;
       case "Kho Pine Script Hub":
-        return <div>Tab Kho Pine Script Hub đang phát triển...</div>;
+        return <PineScriptHub />;
       case "Cấu hình API Hệ thống":
         return <div>Tab Cấu hình API Hệ thống đang phát triển...</div>;
       default:
