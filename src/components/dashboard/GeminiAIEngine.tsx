@@ -37,11 +37,14 @@ const GeminiAIEngine: React.FC = () => {
     }
     try {
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      modelRef.current = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest', systemInstruction });
+      modelRef.current = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-8b' });
       chatRef.current = modelRef.current.startChat({
         history: [],
         generationConfig: { maxOutputTokens: 2000 },
       });
+      // Set system instruction separately if needed or as part of getGenerativeModel
+      // Note: In newer SDK versions, systemInstruction can be passed in getGenerativeModel
+      // modelRef.current = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-8b', systemInstruction });
     } catch (e: unknown) {
       console.error("Error initializing Gemini AI: ", e);
       setError(`Lỗi khởi tạo AI: ${(e as Error).message}. Vui lòng kiểm tra khóa API và kết nối mạng.`);
