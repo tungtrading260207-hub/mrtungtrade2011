@@ -2,6 +2,7 @@
 
 import { useDashboard } from "@/components/DashboardLayoutProvider";
 import CryptoAlgorithmic from "@/components/dashboard/CryptoAlgorithmic"; // Import the new component
+import VNStockIntensive from "@/components/dashboard/VNStockIntensive";
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -13,7 +14,7 @@ export default function Home() {
       case "Dấu vết On-chain (Crypto Algorithmic)":
         return <CryptoAlgorithmic />;
       case "Tiêu chí Vĩ mô (VN-Stock Intensive)":
-        return <div>Tab Tiêu chí Vĩ mô (VN-Stock Intensive) đang phát triển...</div>;
+        return <VNStockIntensive />;
       case "Bộ lọc Kèo Vàng":
         return <div>Tab Bộ lọc Kèo Vàng đang phát triển...</div>;
       case "Kho Pine Script Hub":
