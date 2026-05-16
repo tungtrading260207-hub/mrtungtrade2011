@@ -77,3 +77,45 @@ export interface Altcoin extends BasicMarketInfo, OnChainNetflow, TechnicalSMCIn
   narrative: string[]; /** Các nhóm narrative mà coin thuộc về (ví dụ: AI, RWA, DePIN, L2). */
   topWhaleFluctuation: number; /** Biến động số dư ví của các Top Holders (cá voi) trong 24h qua (%). */
 }
+
+export interface PendingOrder {
+  id: string;
+  assetType: 'SPOT' | 'FUTURES';
+  ticker: string;
+  entryPrice: number;
+  volume: number;
+  stopLoss?: number;
+  takeProfit?: number;
+  leverage?: number;
+  orderTime: Date;
+}
+
+export interface ActivePosition {
+  id: string;
+  assetType: 'SPOT' | 'FUTURES';
+  ticker: string;
+  entryPrice: number;
+  volume: number;
+  currentPrice: number;
+  stopLoss?: number;
+  takeProfit?: number;
+  leverage?: number;
+  openTime: Date;
+  unrealizedPnL: number;
+  unrealizedPnLPercentage: number;
+}
+
+export interface TradeHistory {
+  id: string;
+  assetType: 'SPOT' | 'FUTURES';
+  ticker: string;
+  entryPrice: number;
+  closePrice: number;
+  volume: number;
+  leverage?: number;
+  openTime: Date;
+  closeTime: Date;
+  realizedPnL: number;
+  realizedPnLPercentage: number;
+  fees: number;
+}

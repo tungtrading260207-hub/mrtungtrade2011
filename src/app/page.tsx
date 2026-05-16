@@ -4,6 +4,7 @@ import { useDashboard } from "@/components/DashboardLayoutProvider";
 import CryptoAlgorithmic from "@/components/dashboard/CryptoAlgorithmic"; // Import the new component
 import VNStockIntensive from "@/components/dashboard/VNStockIntensive";
 import PineScriptHub from "@/components/dashboard/PineScriptHub";
+import PaperTradingEngine from "@/components/dashboard/PaperTradingEngine";
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -11,7 +12,12 @@ export default function Home() {
   const renderContent = () => {
     switch (activeTab) {
       case "Tổng quan thị trường":
-        return <div>Tab Tổng quan thị trường đang phát triển...</div>;
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="price-board">{/* Bảng giá sẽ được hiển thị ở đây */}Bảng giá (Price Board)</div>
+            <PaperTradingEngine />
+          </div>
+        );
       case "Dấu vết On-chain (Crypto Algorithmic)":
         return <CryptoAlgorithmic />;
       case "Tiêu chí Vĩ mô (VN-Stock Intensive)":
