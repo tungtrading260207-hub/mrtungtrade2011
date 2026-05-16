@@ -30,6 +30,7 @@ const GeminiAIEngine: React.FC = () => {
   const chatRef = useRef<ChatSession | null>(null);
 
   useEffect(() => {
+    console.log("GEMINI_API_KEY from env:", GEMINI_API_KEY ? "Found (HIDDEN)" : "NOT FOUND");
     if (!GEMINI_API_KEY) {
       setError('Lỗi: Thiếu khóa API Gemini. Vui lòng kiểm tra biến môi trường NEXT_PUBLIC_GEMINI_API_KEY.');
       return;
