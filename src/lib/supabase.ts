@@ -4,14 +4,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
 // Create a single Supabase client for a client-side application.
-// We handle missing variables gracefully during build time
+// We handle missing variables gracefully during build time and to prevent lag
+const isConfigured = supabaseUrl && supabaseAnonKey;
+
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder'
+  isConfigured ? supabaseUrl : 'https://placeholder.supabase.co',
+  isConfigured ? supabaseAnonKey : 'placeholder'
 )
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  if (process.env.NODE_ENV === 'production') {
-    console.warn('Supabase environment variables are missing. Real-time features will not work.')
-  }
+if (!isConfigured) {
+  console.warn('Supabase is not configured. Some features will be disabled to prevent system lag.')
 }

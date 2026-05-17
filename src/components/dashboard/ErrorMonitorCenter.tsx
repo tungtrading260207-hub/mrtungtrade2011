@@ -19,6 +19,12 @@ const ErrorMonitorCenter: React.FC = () => {
   const [healthStatus, setHealthStatus] = useState<'OK' | 'WARNING' | 'CRITICAL'>('OK');
 
   useEffect(() => {
+    // Chỉ chạy nếu Supabase đã được cấu hình
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('Supabase chưa được cấu hình. Chế độ giám sát Realtime tạm tắt.');
+      return;
+    }
+
     // Initial fetch
     fetchErrors();
 

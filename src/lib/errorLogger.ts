@@ -17,6 +17,12 @@ export async function logSystemError(
   severity: ErrorSeverity,
   impactDescription: string
 ) {
+  // Kiểm tra cấu hình Supabase trước khi log
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn(`[SystemError] ${severity}: ${errorName} in ${component} - ${message}. (Supabase not configured)`);
+    return;
+  }
+
   try {
     const { error } = await supabase.from('system_errors').insert([
       {
