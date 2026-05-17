@@ -12,6 +12,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     "Bộ lọc Kèo Vàng",
     "Kho Pine Script Hub",
     "Cấu hình API Hệ thống",
+    "Giám sát & Tự bảo dưỡng",
   ];
 
   return (

@@ -6,6 +6,8 @@ import VNStockIntensive from "@/components/dashboard/VNStockIntensive";
 import PineScriptHub from "@/components/dashboard/PineScriptHub";
 import PaperTradingEngine from "@/components/dashboard/PaperTradingEngine";
 import GeminiAIEngine from "@/components/dashboard/GeminiAIEngine";
+import ErrorMonitorCenter from "@/components/dashboard/ErrorMonitorCenter";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -14,21 +16,41 @@ export default function Home() {
     switch (activeTab) {
       case "Tổng quan thị trường":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="price-board">{/* Bảng giá sẽ được hiển thị ở đây */}Bảng giá (Price Board)</div>
-            <PaperTradingEngine />
-          </div>
+          <ErrorBoundary moduleName="Tổng quan thị trường">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="price-board">{/* Bảng giá sẽ được hiển thị ở đây */}Bảng giá (Price Board)</div>
+              <PaperTradingEngine />
+            </div>
+          </ErrorBoundary>
         );
       case "Dấu vết On-chain (Crypto Algorithmic)":
-        return <CryptoAlgorithmic />;
+        return (
+          <ErrorBoundary moduleName="Dấu vết On-chain">
+            <CryptoAlgorithmic />
+          </ErrorBoundary>
+        );
       case "Tiêu chí Vĩ mô (VN-Stock Intensive)":
-        return <VNStockIntensive />;
+        return (
+          <ErrorBoundary moduleName="Tiêu chí Vĩ mô">
+            <VNStockIntensive />
+          </ErrorBoundary>
+        );
       case "Bộ lọc Kèo Vàng":
-        return <GeminiAIEngine />;
+        return (
+          <ErrorBoundary moduleName="Bộ lọc Kèo Vàng">
+            <GeminiAIEngine />
+          </ErrorBoundary>
+        );
       case "Kho Pine Script Hub":
-        return <PineScriptHub />;
+        return (
+          <ErrorBoundary moduleName="Kho Pine Script Hub">
+            <PineScriptHub />
+          </ErrorBoundary>
+        );
       case "Cấu hình API Hệ thống":
         return <div>Tab Cấu hình API Hệ thống đang phát triển...</div>;
+      case "Giám sát & Tự bảo dưỡng":
+        return <ErrorMonitorCenter />;
       default:
         return <div>Chọn một tab để xem nội dung.</div>;
     }
