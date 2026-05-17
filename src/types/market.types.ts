@@ -81,29 +81,20 @@ export interface Altcoin extends BasicMarketInfo, OnChainNetflow, TechnicalSMCIn
 
 export interface PendingOrder {
   id: string;
-  assetType: 'SPOT' | 'FUTURES';
+  asset_type: 'SPOT' | 'FUTURES';
   ticker: string;
-  entryPrice: number;
+  entry_price: number;
   volume: number;
-  stopLoss?: number;
-  takeProfit?: number;
+  stop_loss?: number;
+  take_profit?: number;
   leverage?: number;
-  orderTime: Date;
+  status: 'PENDING' | 'ACTIVE' | 'CLOSED';
+  created_at: string;
 }
 
-export interface ActivePosition {
-  id: string;
-  assetType: 'SPOT' | 'FUTURES';
-  ticker: string;
-  entryPrice: number;
-  volume: number;
-  currentPrice: number;
-  stopLoss?: number;
-  takeProfit?: number;
-  leverage?: number;
-  openTime: Date;
+export interface ActivePosition extends PendingOrder {
+  current_price: number;
   unrealizedPnL: number;
-  unrealizedPnLPercentage: number;
 }
 
 export interface TradeHistory {

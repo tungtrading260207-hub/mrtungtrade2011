@@ -1,227 +1,123 @@
-// src/components/dashboard/CryptoAlgorithmic.tsx
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Altcoin } from '@/types/market.types';
-import { getSuperPumpHunterAltcoins } from '@/services/api.service';
+import { supabase } from '@/lib/supabase';
+import { logSystemError } from '@/lib/errorLogger';
+
+interface KeoVang {
+  id: string;
+  ticker: string;
+  last_traded_price: number;
+  market_cap: number;
+  netflow: number;
+  golden_deal_score: number;
+  tag: string;
+  impact_description: string;
+  created_at: string;
+}
 
 const CryptoAlgorithmic: React.FC = () => {
-  const [altcoins, setAltcoins] = useState<Altcoin[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedAltcoin, setSelectedAltcoin] = useState<Altcoin | null>(null); // State for selected Altcoin
+  const [data, setData] = useState<KeoVang[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAltcoins = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getSuperPumpHunterAltcoins();
-        setAltcoins(data);
-        if (data.length > 0) {
-          setSelectedAltcoin(data[0]); // Select the first altcoin by default
-        }
+        const { data: keoVang, error } = await supabase
+          .from('keo_vang')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setData(keoVang || []);
       } catch (err) {
-        setError("Failed to fetch altcoin data.");
-        console.error(err);
+        logSystemError(
+          'SUPABASE_FETCH_ERROR',
+          'CryptoRadar',
+          String(err),
+          'HIGH',
+          'Không thể tải dữ liệu Kèo Vàng từ Supabase - Radar On-chain bị đóng băng'
+        );
       } finally {
         setLoading(false);
       }
     };
-    fetchAltcoins();
+
+    fetchData();
+
+    // Lắng nghe thay đổi Realtime
+    const channel = supabase
+      .channel('keo_vang_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'keo_vang' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  // Function to calculate the checklist score (already implemented)
-  const calculateChecklistScore = (altcoin: Altcoin): { score: number; tag: string; tagColor: string } => {
-    let score = 0;
-
-    if (altcoin.netflow < 0) {
-      score += 3;
-    }
-    if (altcoin.topWhaleFluctuation > 5) {
-      score += 2;
-    }
-    if (altcoin.hmaSlopeDirection === 'up') {
-      score += 2;
-    }
-    if (altcoin.elliottWavePosition === 'Sóng 3') {
-      score += 3;
-    }
-
-    let tag = '';
-    let tagColor = '';
-
-    if (score >= 8) {
-      tag = 'KÈO VÀNG';
-      tagColor = 'text-green-400';
-    } else if (score >= 5) {
-      tag = 'CHỜ/GOM';
-      tagColor = 'text-yellow-400';
-    } else {
-      tag = 'LOẠI';
-      tagColor = 'text-gray-500';
-    }
-
-    return { score, tag, tagColor };
-  };
-
-  // Logic for CVD Status
-  const getCVDStatus = (altcoin: Altcoin | null): { label: string; color: string } => {
-    if (!altcoin) {
-      return { label: "Không có dữ liệu", color: "text-gray-500" };
-    }
-
-    // Mocking CVD behavior based on netflow and price trend
-    const mockPreviousPrice = altcoin.lastTradedPrice * (1 - (Math.random() * 0.02 - 0.01)); // +/- 1%
-    const priceChange = altcoin.lastTradedPrice - mockPreviousPrice;
-
-    if (Math.abs(priceChange) < altcoin.lastTradedPrice * 0.005 && altcoin.netflow > 0) {
-      return { label: 'GOM HÀNG CHUẨN', color: 'text-green-500' };
-    }
-
-    if (priceChange < -altcoin.lastTradedPrice * 0.02 && altcoin.netflow >= 0) {
-      return { label: 'CHỐNG SHAKEOUT - GIỮ HÀNG', color: 'text-purple-500' };
-    }
-
-    if (priceChange > altcoin.lastTradedPrice * 0.01 && altcoin.netflow < 0) {
-      return { label: 'PUMP ẢO - BỎ QUA', color: 'text-red-500' };
-    }
-
-    return { label: 'Trạng thái không xác định', color: 'text-gray-500' };
-  };
-
-  // Logic for Exhaustion Mode Alert
-  const getExhaustionModeAlert = (altcoin: Altcoin | null): { label: string; color: string } => {
-    if (!altcoin) {
-      return { label: "Không có dữ liệu", color: "text-gray-500" };
-    }
-
-    const mockPreviousVolume = altcoin.volume24h * (1 + (Math.random() * 0.1 - 0.05)); // +/- 5%
-    const mockPreviousPrice = altcoin.lastTradedPrice * (1 - (Math.random() * 0.03 - 0.015)); // +/- 1.5%
-    const mockPreviousMFI = altcoin.mfi + (Math.random() * 10 - 5); // MFI can fluctuate
-
-    const priceMadeNewHigh = altcoin.lastTradedPrice > mockPreviousPrice;
-    const volumeDecreased = altcoin.volume24h < mockPreviousVolume;
-    const mfiHighAndTrendingDown = altcoin.mfi > 80 && altcoin.mfi < mockPreviousMFI;
-    const hasPriceTrap = Math.random() < 0.3;
-
-    if (priceMadeNewHigh && volumeDecreased && mfiHighAndTrendingDown && hasPriceTrap) {
-      return { label: 'CẢNH BÁO: CẠN KIỆT LỰC MUA (SHORT/XẢ HÀNG)', color: 'text-red-500 animate-pulse' };
-    }
-
-    return { label: 'Không có cảnh báo', color: 'text-gray-500' };
-  };
-
+  if (loading) {
+    return (
+      <div className="p-6 bg-slate-900 rounded-xl border border-slate-800 animate-pulse space-y-4">
+        <div className="h-6 bg-slate-800 rounded w-1/4"></div>
+        <div className="h-40 bg-slate-800 rounded"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 bg-gray-900 text-white min-h-full flex flex-col space-y-4">
-      <h2 className="text-2xl font-bold text-green-400 mb-4">
-        Crypto Algorithmic Analysis Module
-        <span className="text-sm text-gray-400 ml-2">(Module Phân tích Crypto chuyên sâu)</span>
-      </h2>
-
-      {/* Grid Layout for the three main areas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-        {/* Radar Săn Kèo Vàng (Super-Pump Hunter Dashboard) */}
-        <div className="md:col-span-2 bg-gray-800 rounded-lg p-4 shadow-lg flex flex-col">
-          <h3 className="text-xl font-semibold text-blue-400 mb-3">
-            Radar Săn Kèo Vàng
-            <span className="text-sm text-gray-400 ml-2">(Super-Pump Hunter Dashboard)</span>
-          </h3>
-          <div className="flex-1 overflow-auto">
-            {loading ? (
-              <div className="flex justify-center items-center h-full">
-                <p>Đang tải dữ liệu...</p>
-              </div>
-            ) : error ? (
-              <div className="flex justify-center items-center h-full text-red-500">
-                <p>{error}</p>
-              </div>
-            ) : (
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead className="bg-gray-700 sticky top-0">
-                  <tr>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Mã giao dịch">Ticker</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Giá Khớp Lệnh Real-time">LTP</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Vốn hóa thị trường">Market Cap</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Cung lưu hành %">Circ. Supply %</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Dòng tiền ròng sàn">Netflow</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Biến động Ví Top 1-5%">Whale Fluct.</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Độ dốc HMA D1">HMA Slope D1</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Vị thế sóng">Wave Position</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Điểm Checklist">Checklist Score</th>
-                    <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider" title="Tag Kèo Vàng">Tag</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {altcoins.map((altcoin) => {
-                    const { score, tag, tagColor } = calculateChecklistScore(altcoin);
-                    return (
-                      <tr
-                        key={altcoin.ticker}
-                        className="hover:bg-gray-700 cursor-pointer"
-                        onClick={() => setSelectedAltcoin(altcoin)}
-                      >
-                        <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-white">{altcoin.ticker}</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">${altcoin.lastTradedPrice.toFixed(4)}</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">${(altcoin.marketCap / 1_000_000).toFixed(2)}M</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">{altcoin.circulatingSupplyPercentage.toFixed(2)}%</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">{altcoin.netflow.toFixed(2)}</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">{altcoin.topWhaleFluctuation.toFixed(2)}%</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">{altcoin.hmaSlopeDirection}</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">{altcoin.elliottWavePosition}</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-300">{score}</td>
-                        <td className={`px-3 py-2 whitespace-nowrap text-sm font-bold ${tagColor}`}>
-                          {tag}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
+    <div className="space-y-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div className="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            🚀 Radar Săn Kèo Vàng (Real-time Signals)
+          </h2>
         </div>
 
-        {/* Bảng Giám sát Xung lực CVD & On-chain Footprint */}
-        <div className="bg-gray-800 rounded-lg p-4 shadow-lg flex flex-col">
-          <h3 className="text-xl font-semibold text-purple-400 mb-3">
-            Bảng Giám sát Xung lực CVD & On-chain Footprint
-            <span className="text-sm text-gray-400 ml-2">(CVD & On-chain Footprint Monitor)</span>
-          </h3>
-          <div className="flex-1 flex flex-col justify-center items-center text-gray-500 space-y-4">
-            {selectedAltcoin ? (
-              <>
-                <p className="text-lg text-white font-semibold">
-                  {selectedAltcoin.ticker}: <span className={getCVDStatus(selectedAltcoin).color}>{getCVDStatus(selectedAltcoin).label}</span>
-                </p>
-                <div className="text-sm text-gray-400">
-                  <p>Giá cuối: ${selectedAltcoin.lastTradedPrice.toFixed(4)}</p>
-                  <p>Netflow: {selectedAltcoin.netflow.toFixed(2)}</p>
-                  <p>Tỷ lệ cá voi: {(selectedAltcoin.whaleHoldingsRatio * 100).toFixed(2)}%</p>
-                </div>
-              </>
-            ) : (
-              <p>Chọn một Altcoin từ bảng để xem chi tiết CVD.</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Khung Cảnh báo Sớm Cạn Kiệt Lực Mua (Exhaustion Mode Monitor) - full width */}
-      <div className="bg-gray-800 rounded-lg p-4 shadow-lg">
-        <h3 className="text-xl font-semibold text-red-400 mb-3">
-          Khung Cảnh báo Sớm Cạn Kiệt Lực Mua
-          <span className="text-sm text-gray-400 ml-2">(Exhaustion Mode Monitor)</span>
-        </h3>
-        <div className="flex items-center justify-center h-24">
-          {selectedAltcoin ? (
-            <p className="text-lg text-white font-semibold">
-              {selectedAltcoin.ticker}: <span className={getExhaustionModeAlert(selectedAltcoin).color}>{getExhaustionModeAlert(selectedAltcoin).label}</span>
+        {data.length === 0 ? (
+          <div className="p-12 text-center space-y-4">
+            <div className="text-4xl">🔍</div>
+            <p className="text-slate-400 font-medium">
+              Chưa có Kèo Vàng nào đạt tiêu chí hệ thống Mr Tung - Đang quét tín hiệu 24/7...
             </p>
-          ) : (
-            <p className="text-gray-500">Chọn một Altcoin từ bảng để xem cảnh báo Exhaustion Mode.</p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-800/30 text-slate-500 text-xs uppercase tracking-widest">
+                  <th className="p-4">Mã</th>
+                  <th className="p-4">Giá Khớp</th>
+                  <th className="p-4">Vốn hóa</th>
+                  <th className="p-4 text-center">Điểm Hệ Thống</th>
+                  <th className="p-4 text-right">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {data.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-800/50 transition-colors">
+                    <td className="p-4 font-bold text-blue-400 text-lg">{item.ticker}</td>
+                    <td className="p-4 font-mono text-white">${item.last_traded_price.toLocaleString()}</td>
+                    <td className="p-4 text-slate-400">${(item.market_cap / 1000000).toFixed(1)}M</td>
+                    <td className="p-4 text-center">
+                      <span className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full font-bold border border-amber-500/30">
+                        {item.golden_deal_score}/10
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <span className="px-3 py-1 bg-green-500 text-white rounded text-xs font-black uppercase animate-pulse">
+                        {item.tag}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
