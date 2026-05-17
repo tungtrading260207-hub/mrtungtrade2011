@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { logSystemError, ERROR_IMPACT } from '@/lib/errorLogger';
 
 interface VNStockIntensiveProps {}
 
@@ -70,6 +71,15 @@ const VNStockIntensive: React.FC<VNStockIntensiveProps> = () => {
   useEffect(() => {
     // Simulate fetching dividend stocks
     const fetchedDividendStocks = generateMockDividendStocks();
+    if (!fetchedDividendStocks || fetchedDividendStocks.length === 0) {
+      logSystemError(
+        'DATA_EMPTY',
+        'VNStockIntensive',
+        'Không có dữ liệu cổ tức',
+        'MEDIUM',
+        ERROR_IMPACT.VN_STOCK_API
+      );
+    }
     setAllDividendStocks(fetchedDividendStocks);
     setFilteredDividendStocks(fetchedDividendStocks.filter(stock => stock.gapFillingSpeed <= filterGapSpeed));
 

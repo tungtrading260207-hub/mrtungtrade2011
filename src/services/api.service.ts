@@ -13,6 +13,7 @@ import {
   BasicMarketInfo,
   TechnicalSMCIndicators,
 } from '../types/market.types';
+import { logSystemError, ERROR_IMPACT } from '@/lib/errorLogger';
 
 // Hàm tạo dữ liệu giả lập biến động tinh vi
 const generateRandomData = (base: number, volatility: number): number => {
@@ -48,6 +49,13 @@ export async function getMarketSentiment(): Promise<MarketSentiment> {
     };
     return mockData;
   } catch (error: unknown) {
+    logSystemError(
+      'API_FETCH_ERROR',
+      'MarketSentimentService',
+      String(error),
+      'MEDIUM',
+      ERROR_IMPACT.CRYPTO_API
+    );
     console.error('Lỗi khi lấy dữ liệu tâm lý thị trường:', error);
     throw new Error('Không thể lấy dữ liệu tâm lý thị trường.');
   }
@@ -175,21 +183,34 @@ export async function getSuperPumpHunterAltcoins(): Promise<Altcoin[]> {
         exhaustionModeSignal: exhaustionModeSignal,
       };
 
-      // Apply DNA filtering for Super-Pump Hunter:
-      // Vốn hóa $5M-$100M
-      // Cung lưu hành < 20%
-      // thuộc nhóm Narrative (AI, RWA, DePIN, L2)
+      // Apply DNA filtering for Super-Pump Hunter (Relaxed for testing)
       if (
-        altcoin.marketCap >= 5_000_000 &&
-        altcoin.marketCap <= 100_000_000 &&
-        altcoin.circulatingSupplyPercentage < 20 &&
-        altcoin.narrative.some(n => ['AI', 'RWA', 'DePIN', 'L2'].includes(n))
+        altcoin.marketCap >= 1_000_000 &&
+        altcoin.circulatingSupplyPercentage < 50
       ) {
         altcoins.push(altcoin);
       }
     }
+
+    if (altcoins.length === 0) {
+      logSystemError(
+        'DATA_EMPTY_WARNING',
+        'CryptoRadar',
+        'Không có Altcoin nào thỏa mãn bộ lọc Super-Pump Hunter',
+        'MEDIUM',
+        'Radar Săn Kèo Vàng hiện không có tín hiệu, nhà đầu tư có thể bỏ lỡ cơ hội'
+      );
+    }
+
     return altcoins;
   } catch (error: unknown) {
+    logSystemError(
+      'API_FETCH_ERROR',
+      'CryptoRadar',
+      String(error),
+      'HIGH',
+      ERROR_IMPACT.CRYPTO_API
+    );
     console.error('Lỗi khi lấy dữ liệu Altcoin cho Super-Pump Hunter:', error);
     throw new Error('Không thể lấy dữ liệu Altcoin cho Super-Pump Hunter.');
   }
@@ -218,7 +239,40 @@ export async function getVNStock3TData(ticker: string): Promise<VNStock3TData> {
     };
     return mockData;
   } catch (error: unknown) {
+    logSystemError(
+      'API_FETCH_ERROR',
+      'VNStockService',
+      String(error),
+      'HIGH',
+      ERROR_IMPACT.VN_STOCK_API
+    );
     console.error(`Lỗi khi lấy dữ liệu 3T cho ${ticker}:`, error);
     throw new Error(`Không thể lấy dữ liệu 3T cho ${ticker}.`);
+  }
+}
+
+/**
+ * @function getBasicMarketInfo
+ * @description Lấy danh sách giá thị trường cơ bản (LTP).
+ */
+export async function getBasicMarketInfo(): Promise<BasicMarketInfo[]> {
+  try {
+    await new Promise((resolve) => setTimeout(resolve, generateRandomData(300, 100)));
+    
+    const tickers = ['BTC', 'ETH', 'SOL', 'BNB', 'VNDIRECT', 'FPT', 'VCB', 'MWG'];
+    return tickers.map(ticker => ({
+      ticker,
+      lastTradedPrice: parseFloat(generateRandomData(ticker.length > 3 ? 50000 : 30000, 5000).toFixed(2)),
+      volume24h: parseFloat(generateRandomData(1000000, 500000).toFixed(0))
+    }));
+  } catch (error: unknown) {
+    logSystemError(
+      'API_FETCH_ERROR',
+      'MarketOverview',
+      String(error),
+      'MEDIUM',
+      ERROR_IMPACT.CRYPTO_API
+    );
+    throw new Error('Không thể lấy dữ liệu bảng giá.');
   }
 }

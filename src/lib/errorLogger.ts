@@ -44,4 +44,5 @@ export const ERROR_IMPACT = {
   DATABASE: 'Không thể lưu/đọc dữ liệu Kèo Vàng và Lịch sử lệnh giả lập',
   VN_STOCK_API: 'Chỉ số 3T và Radar Cổ Tức VN-Stock tạm thời mất tín hiệu',
   UI_CRASH: 'Hệ thống phát hiện xung đột hiển thị - Đang tự động kích hoạt chế độ tự bảo dưỡng',
+  DATA_EMPTY: 'Dữ liệu trả về rỗng - Có thể do lỗi API hoặc bộ lọc quá khắt khe',
 };

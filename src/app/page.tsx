@@ -8,6 +8,7 @@ import PaperTradingEngine from "@/components/dashboard/PaperTradingEngine";
 import GeminiAIEngine from "@/components/dashboard/GeminiAIEngine";
 import ErrorMonitorCenter from "@/components/dashboard/ErrorMonitorCenter";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import PriceBoard from "@/components/dashboard/PriceBoard";
 
 export default function Home() {
   const { activeTab } = useDashboard();
@@ -18,7 +19,7 @@ export default function Home() {
         return (
           <ErrorBoundary moduleName="Tổng quan thị trường">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="price-board">{/* Bảng giá sẽ được hiển thị ở đây */}Bảng giá (Price Board)</div>
+              <PriceBoard />
               <PaperTradingEngine />
             </div>
           </ErrorBoundary>
