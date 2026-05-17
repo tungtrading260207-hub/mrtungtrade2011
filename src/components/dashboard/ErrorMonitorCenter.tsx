@@ -30,8 +30,11 @@ const ErrorMonitorCenter: React.FC = () => {
         { event: 'INSERT', schema: 'public', table: 'system_errors' },
         (payload) => {
           const newError = payload.new as SystemError;
-          setErrors((prev) => [newError, ...prev]);
-          updateHealthStatus([newError, ...errors]);
+          setErrors((prev) => {
+            const updated = [newError, ...prev];
+            updateHealthStatus(updated);
+            return updated;
+          });
         }
       )
       .subscribe();
@@ -39,7 +42,7 @@ const ErrorMonitorCenter: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [errors]);
+  }, []); // Run once on mount
 
   const fetchErrors = async () => {
     const { data, error } = await supabase
