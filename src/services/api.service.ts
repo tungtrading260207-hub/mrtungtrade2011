@@ -46,16 +46,16 @@ export async function getBinancePrices(symbols: string[]): Promise<BasicMarketIn
 export async function getVNStockPrices(symbols: string[]): Promise<BasicMarketInfo[]> {
   try {
     if (!process.env.NEXT_PUBLIC_VN_STOCK_API) {
-        throw new Error('Thiếu cấu hình biến môi trường NEXT_PUBLIC_VN_STOCK_API - Hệ thống tạm ngưng quét mã');
+        throw new Error('CHẨN ĐOÁN: Thiếu biến NEXT_PUBLIC_VN_STOCK_API trong file cấu hình (.env.local hoặc Vercel).');
     }
     return [];
   } catch (error) {
     logSystemError(
-      'VNSTOCK_CONFIG_ERROR',
-      'PriceService',
+      'CONFIG_ERROR',
+      'VNStockService',
       String(error),
       'MEDIUM',
-      'Chỉ số 3T và Radar Cổ Tức VN-Stock tạm thời mất tín hiệu'
+      ERROR_IMPACT.VN_STOCK_API
     );
     return [];
   }

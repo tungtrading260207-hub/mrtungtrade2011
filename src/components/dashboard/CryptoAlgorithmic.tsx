@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { logSystemError } from '@/lib/errorLogger';
+import { logSystemError, ERROR_IMPACT } from '@/lib/errorLogger';
 
 interface KeoVang {
   id: string;
@@ -24,6 +24,12 @@ const CryptoAlgorithmic: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        
+        // Kiểm tra biến môi trường trước khi gọi
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+            throw new Error('CHẨN ĐOÁN: Thiếu cấu hình Supabase URL hoặc Anon Key. Hệ thống không thể kết nối Database.');
+        }
+
         const { data: keoVang, error } = await supabase
           .from('keo_vang')
           .select('*')
@@ -33,11 +39,11 @@ const CryptoAlgorithmic: React.FC = () => {
         setData(keoVang || []);
       } catch (err) {
         logSystemError(
-          'SUPABASE_FETCH_ERROR',
+          'DATABASE_CONNECTION_ERROR',
           'CryptoRadar',
           String(err),
           'HIGH',
-          'Không thể tải dữ liệu Kèo Vàng từ Supabase - Radar On-chain bị đóng băng'
+          ERROR_IMPACT.DATABASE
         );
       } finally {
         setLoading(false);

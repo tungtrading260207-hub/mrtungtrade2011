@@ -46,9 +46,10 @@ export async function logSystemError(
  * Tiện ích hỗ trợ xác định impact dựa trên component/loại lỗi
  */
 export const ERROR_IMPACT = {
-  CRYPTO_API: 'Toàn bộ giá Crypto không cập nhật, Radar On-chain bị đóng băng',
-  DATABASE: 'Không thể lưu/đọc dữ liệu Kèo Vàng và Lịch sử lệnh giả lập',
-  VN_STOCK_API: 'Chỉ số 3T và Radar Cổ Tức VN-Stock tạm thời mất tín hiệu',
-  UI_CRASH: 'Hệ thống phát hiện xung đột hiển thị - Đang tự động kích hoạt chế độ tự bảo dưỡng',
-  DATA_EMPTY: 'Dữ liệu trả về rỗng - Có thể do lỗi API hoặc bộ lọc quá khắt khe',
+  CRYPTO_API: 'TÌNH TRẠNG: Mất kết nối Binance. HỆ QUẢ: Toàn bộ bảng giá Crypto và Radar On-chain bị đóng băng, không thể cập nhật LTP.',
+  DATABASE: 'TÌNH TRẠNG: Lỗi kết nối Supabase. HỆ QUẢ: Không thể lưu/đọc dữ liệu Kèo Vàng, Lịch sử lệnh và cấu hình hệ thống.',
+  VN_STOCK_API: 'TÌNH TRẠNG: Thiếu API Chứng khoán VN. HỆ QUẢ: Chỉ số 3T và Radar Cổ Tức tạm thời mất tín hiệu quét mã.',
+  UI_CRASH: 'TÌNH TRẠNG: Xung đột hiển thị React. HỆ QUẢ: Phân hệ giao diện bị tạm ngưng để kích hoạt chế độ tự bảo dưỡng.',
+  DATA_EMPTY: 'TÌNH TRẠNG: Dữ liệu rỗng. HỆ QUẢ: Hệ thống quét không tìm thấy mã nào đạt tiêu chí hoặc API trả về kết quả trống.',
+  CONFIG_MISSING: 'TÌNH TRẠNG: Thiếu biến môi trường (Secrets). HỆ QUẢ: Hệ thống tạm ngưng toàn bộ tiến trình quét và phân tích mã.',
 };
